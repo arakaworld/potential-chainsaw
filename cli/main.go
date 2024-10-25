@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -12,20 +13,26 @@ import (
 func main() {
 	err := godotenv.Load("../.env")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+	}
+
+	if len(os.Args) < 2 {
+		log.Fatal("Contract address argument is missing")
 	}
 
 	contractAddr := os.Args[1] // スマートコントラクトのアドレス
 	apiKey := os.Getenv("API_KEY")
 	signerPrvKey := os.Getenv("PRIVATE_KEY")
-	host := fmt.Sprintf("https://goerli.infura.io/v3/%s", apiKey)
 
-	// fmt.Println("🐹🐹🐹🐹🐹🐹🐹🐹🐹🐹")
-	// fmt.Println(contractAddr)
-	// fmt.Println(apiKey)
-	// fmt.Println(signerPrvKey)
-	// fmt.Println(host)
-	// fmt.Println("🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶")
+	if apiKey == "" {
+		log.Fatal("API_KEY environment variable is not set")
+	}
+
+	if signerPrvKey == "" {
+		log.Fatal("PRIVATE_KEY environment variable is not set")
+	}
+
+	host := fmt.Sprintf("https://goerli.infura.io/v3/%s", apiKey)
 
 	config := mycoin.Config{
 		Host:         host,
@@ -35,12 +42,12 @@ func main() {
 	}
 	cl, err := mycoin.InitClient(config)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	symbol, err := cl.Instance.Symbol(nil)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	fmt.Printf("🌟 symbol: %s\n", symbol)
 }
